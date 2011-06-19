@@ -393,3 +393,51 @@ not_supported:
 
 	return NOTSUPPORTED;
 }
+
+/******************************************************************************
+ *                                                                            *
+ * Function: send_perf_stats
+ *                                                                            *
+ ******************************************************************************/
+
+int send_perf_stats(zbx_sock_t *sock)
+{
+	char buffer[MAX_STRING_LEN];
+	char            error[MAX_STRING_LEN];
+	int res = FAIL;
+	extern int threads_num;
+
+	zabbix_log(LOG_LEVEL_DEBUG, "In send_perf_stats()");
+
+	zbx_snprintf(buffer, sizeof(buffer), "STAT version %s rev %s\nSTAT boottime %d\nSTAT uptime %d\nSTAT time %d\nSTAT items_total %d\nSTAT items_unsupported %d\nSTAT triggers_total %d\nSTAT items_queue %d\nSTAT required_perf %.2f\nSTAT wcache_total %llu\nSTAT rcache_free %llu\nSTAT threads %d\nEND\n",
+		ZABBIX_VERSION, ZABBIX_REVISION, // version & revision
+		CONFIG_SERVER_STARTUP_TIME, // boottime
+		time(NULL) - CONFIG_SERVER_STARTUP_TIME, // uptime
+		time(NULL), // time
+		DBget_row_count("items"), // total_items
+		DBget_items_unsupported_count(), // unsupported_items
+		DBget_row_count("triggers"), // total_triggers
+		DBget_queue_count(0, -1), // item_queue
+		DBget_requiredperformance(), // required_perf
+		*(zbx_uint64_t *)DCget_stats(ZBX_STATS_HISTORY_COUNTER), // total_wcache
+		*(zbx_uint64_t *)DCconfig_get_stats(ZBX_CONFSTATS_BUFFER_FREE), // free_rcache
+		threads_num // threads
+	);
+
+	zabbix_log(LOG_LEVEL_DEBUG, "Sending [%s]",
+		buffer);
+
+	alarm(CONFIG_TIMEOUT);
+	if (SUCCEED != zbx_tcp_send_raw(sock, buffer))
+		zbx_snprintf(error, MAX_STRING_LEN, "%s", zbx_tcp_strerror());
+	else
+		res = SUCCEED;
+	alarm(0);
+
+	if (FAIL == res)
+		zabbix_log(LOG_LEVEL_WARNING, "Send Zabbix stats to [%s] failed: %s",
+			get_ip_by_socket(sock), error);
+
+	return res;
+}
+

@@ -222,7 +222,12 @@ static int	process_trap(zbx_sock_t	*sock, char *s, int max_len)
 	datalen = strlen(s);
 	zabbix_log(LOG_LEVEL_DEBUG, "Trapper got [%s] len %zd", s, datalen);
 
-	if (0 == strncmp(s, "ZBX_GET_ACTIVE_CHECKS", 21))	/* Request for list of active checks */
+	if (0 == strncmp(s, "stats", 5))        /* Request performance stats */
+	{
+		ret = send_perf_stats(sock, s);
+		return ret;
+	}
+	else if (0 == strncmp(s, "ZBX_GET_ACTIVE_CHECKS", 21)) /* Request for list of active checks */
 	{
 		ret = send_list_of_active_checks(sock, s, zbx_process);
 	}

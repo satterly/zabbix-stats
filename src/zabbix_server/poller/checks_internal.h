@@ -23,9 +23,11 @@
 #include "common.h"
 #include "dbcache.h"
 #include "sysinfo.h"
+#include "comms.h"
 
 extern int	CONFIG_SERVER_STARTUP_TIME;
 
 int	get_value_internal(DC_ITEM *item, AGENT_RESULT *result);
+int	send_perf_stats(zbx_sock_t *sock);
 
 #endif
