@@ -4,6 +4,8 @@ Zabbix Server Statistics
 Get access to internal zabbix server performance statistics
 for reporting and graphing using tools like Ganglia, Cacti etc.
 
+### Statistics ###
+
 The following statistics are available:
 
 <pre>
@@ -23,16 +25,15 @@ The following statistics are available:
  | threads           | threads_num                        | 
 </pre>
 
-Usage
------
+### Usage ###
 
 Telnet to port 10051 on the Zabbix server and type "stats". All available
 stats will be returned, one per line, prepended with STAT and then 
 terminated with an END.
 
-Example
--------
+### Example ###
 
+<pre>
 # telnet localhost 10051
 Trying 127.0.0.1...
 Connected to localhost.
@@ -51,9 +52,9 @@ STAT wcache_total 58
 STAT rcache_free 8279480
 STAT threads 26
 END
+</pre>
 
-Modifications
--------------
+### Modifications ###
 
 Only three files have been modified...
 
@@ -61,10 +62,12 @@ Only three files have been modified...
 * src/zabbix_server/poller/checks_internal.h
 * src/zabbix_server/trapper/trapper.c
 
-Install instructions
---------------------
+### Install Instructions ###
 
-1. ./configure --enable-server --with-mysql
-2. make
-3. make install
+1. `./configure --enable-server --with-mysql`
+2. `make`
+3. `make install`
 
+### Original Source Code ###
+
+The original source code is available on [SourceForge](http://sourceforge.net/projects/zabbix/).
